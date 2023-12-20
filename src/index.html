@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pics.Awesome</title>
+    <script>
+        {{htmx_script}}
+    </script>
+</head>
+<style>
+    body{
+        font-family: sans-serif;
+        background-color: #fff;
+    }
+    a{
+        text-decoration: none;
+        color: #1a1a99;
+        margin: 1rem;
+    }
+    form{
+        padding: 0.5rem 0;
+        width: 60%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 0 1.2rem;
+    }
+    input{
+        font-size: 1.2rem;
+        width: 50%;
+    }
+    form button{
+        font-size: 1.2rem;
+    }
+    .container{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+<body class="container">
+    <form onsubmit="sendFirst(event)">
+        <input autocomplete="off" spellcheck="false" type="search" hx-post="/search" hx-target="#results" hx-trigger="keyup changed" name="q" id="q">
+        <button type="submit">Search</button>
+    </form>
+    <span hx-trigger="load" hx-get="/all" hx-target="#results">
+    </span>
+    <div id="results">
+    </div>
+</body>
+<script>
+    let links = document.querySelectorAll('.link');
+
+    let results = document.getElementById('results');
+    results.addEventListener("htmx:afterSwap", function(event){
+        links = document.querySelectorAll('.link');
+        console.log(links);
+    })
+
+    function sendFirst(e){
+        e.preventDefault();
+
+        let firstLink = links[0];
+        let firstLinkHref = firstLink.getAttribute('href');
+
+        window.location.href = firstLinkHref;
+    }
+ </script>
+</html>
