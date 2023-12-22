@@ -23,6 +23,7 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "clipboard",
+ "correct_word",
  "http",
  "ip_extractor",
  "serde",
@@ -176,6 +177,12 @@ checksum = "e3a093d6fed558e5fe24c3dfc85a68bb68f1c824f440d3ba5aca189e2998786b"
 dependencies = [
  "winapi",
 ]
+
+[[package]]
+name = "correct_word"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "69d2e239c61a9fb5c6709f75255449e117cba4a1156cfce804ccda7aadc9d2d1"
 
 [[package]]
 name = "equivalent"

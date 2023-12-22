@@ -8,6 +8,7 @@ use axum::{
 };
 use clipboard::{ClipboardContext, ClipboardProvider};
 
+use correct_word::correct_word;
 use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
 
@@ -15,6 +16,8 @@ use tower_http::services::ServeDir;
 struct Search {
     q: String,
 }
+
+const VALID: [&str; 8] = ["jpg", "png", "jpeg", "webp", "gif", "mp4", "mkv", "webm"];
 
 #[tokio::main]
 async fn main() {
@@ -57,26 +60,52 @@ fn get_htmx_script_content() -> &'static str {
 }
 
 fn list_files() -> Vec<String> {
-    let valid = ["jpg", "png", "jpeg", "webp", "gif", "mp4", "mkv", "webm"];
-
     let mut files = Vec::new();
     for entry in std::fs::read_dir("./static").unwrap() {
         let path = entry.unwrap().path();
-        if !valid.contains(&path.extension().unwrap().to_str().unwrap()) {
+        if !VALID.contains(&path.extension().unwrap().to_str().unwrap()) {
             continue;
         }
-        files.push(path.file_name().unwrap().to_str().unwrap().to_string());
+        files.push(
+            path.file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_ascii_lowercase()
+                .to_string(),
+        );
     }
 
     files
 }
 
-fn find_files(query: &str) -> Vec<String> {
-    let files = list_files()
+fn raw_find(query: &str) -> Vec<String> {
+    list_files()
         .iter()
-        .filter(|x| x.contains(query))
+        .filter(|x| {
+            x.replace(char::is_numeric, "")
+                .contains(query.to_ascii_lowercase().to_string().as_str())
+        })
         .map(|x| x.to_string())
-        .collect::<Vec<String>>();
+        .collect::<Vec<String>>()
+}
+
+fn find_files(query: &str) -> Vec<String> {
+    let files = raw_find(query);
+
+    if files.is_empty() {
+        let nearest = correct_word(
+            correct_word::Algorithm::Levenshtein,
+            query.to_string(),
+            list_files(),
+            Some(10),
+        );
+
+        match nearest.word {
+            Some(word) => return raw_find(&word),
+            None => return Vec::new(),
+        }
+    }
 
     files
 }
