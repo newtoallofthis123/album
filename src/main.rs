@@ -8,7 +8,6 @@ use axum::{
 };
 use clipboard::{ClipboardContext, ClipboardProvider};
 
-use correct_word::correct_word;
 use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
 
@@ -79,35 +78,28 @@ fn list_files() -> Vec<String> {
     files
 }
 
-fn raw_find(query: &str) -> Vec<String> {
-    list_files()
+fn find_files(query: &str) -> Vec<String> {
+    let files = list_files()
         .iter()
         .filter(|x| {
-            x.replace(char::is_numeric, "")
-                .contains(query.to_ascii_lowercase().to_string().as_str())
+            x.replace(['.', '_', '-'].as_ref(), "")
+                .to_ascii_lowercase()
+                .contains(
+                    query
+                        .trim()
+                        .replace(' ', "")
+                        .to_ascii_lowercase()
+                        .to_string()
+                        .as_str(),
+                )
         })
         .map(|x| x.to_string())
-        .collect::<Vec<String>>()
-}
+        .collect::<Vec<String>>();
 
-fn find_files(query: &str) -> Vec<String> {
-    let files = raw_find(query);
-
-    if files.is_empty() {
-        let nearest = correct_word(
-            correct_word::Algorithm::Levenshtein,
-            query.to_string(),
-            list_files(),
-            Some(10),
-        );
-
-        match nearest.word {
-            Some(word) => return raw_find(&word),
-            None => return Vec::new(),
-        }
+    match files.len() {
+        0 => list_files(),
+        _ => files,
     }
-
-    files
 }
 
 async fn home() -> Html<String> {
