@@ -8,6 +8,7 @@ use axum::{
 };
 use clipboard::{ClipboardContext, ClipboardProvider};
 
+use html_tag::HtmlTag;
 use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
 
@@ -110,34 +111,58 @@ async fn home() -> Html<String> {
 }
 
 async fn all() -> Html<String> {
-    let mut html = String::new();
+    let mut html = HtmlTag::new("div");
 
     list_files().iter().for_each(|x| {
-        html += format!("<p><a class='link' href='/assets/{}'>{}</a></p>", x, x).as_str();
+        let mut link = HtmlTag::new("a");
+        link.add_class("link");
+        link.set_href(format!("/assets/{}", x).as_str());
+        link.set_body(x);
+
+        let mut p = HtmlTag::new("p");
+        p.add_child(link);
+
+        html.add_child(p);
     });
 
-    Html(html)
+    Html(html.to_string())
 }
 
 async fn search_form(Form(search): Form<Search>) -> Html<String> {
-    let mut html = String::new();
+    let mut html = HtmlTag::new("div");
 
     find_files(&search.q).iter().for_each(|x| {
-        html += format!("<p><a class='link' href='/assets/{}'>{}</a></p>", x, x).as_str();
+        let mut link = HtmlTag::new("a");
+        link.add_class("link");
+        link.set_href(format!("/assets/{}", x).as_str());
+        link.set_body(x);
+
+        let mut p = HtmlTag::new("p");
+        p.add_child(link);
+
+        html.add_child(p);
     });
 
-    Html(html)
+    Html(html.to_string())
 }
 
 async fn search(Query(params): Query<HashMap<String, String>>) -> Html<String> {
     let default = "".to_string();
     let query = params.get("q").unwrap_or(&default);
 
-    let mut html = String::new();
+    let mut html = HtmlTag::new("div");
 
     find_files(query).iter().for_each(|x| {
-        html += format!("<p><a class='link' href='/assets/{}'>{}</a></p>", x, x).as_str();
+        let mut link = HtmlTag::new("a");
+        link.add_class("link");
+        link.set_href(format!("/assets/{}", x).as_str());
+        link.set_body(x);
+
+        let mut p = HtmlTag::new("p");
+        p.add_child(link);
+
+        html.add_child(p);
     });
 
-    Html(html)
+    Html(html.to_string())
 }

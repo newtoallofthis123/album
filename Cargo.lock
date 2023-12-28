@@ -23,6 +23,7 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "clipboard",
+ "html_tag",
  "http",
  "ip_extractor",
  "serde",
@@ -273,6 +274,12 @@ name = "hermit-abi"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d77f7ec81a6d05a3abb01ab6eb7590f6083d08449fe5a1c8b1e620283546ccb7"
+
+[[package]]
+name = "html_tag"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "14166e8f10fbe6f47f32d21eea0f83fbcb0eca43fe0ebb96726b3500eece5715"
 
 [[package]]
 name = "http"
